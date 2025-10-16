@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>用户注册</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.username.label }}<br>
+        {{ form.username(size=32) }}
+    </p>
+    <p>
+        {{ form.email.label }}<br>
+        {{ form.email(size=32) }}
+    </p>
+    <p>
+        {{ form.password.label }}<br>
+        {{ form.password(size=32) }}
+    </p>
+    <p>
+        {{ form.captcha.label }}<br>
+        {{ form.captcha(size=32) }}
+        <!-- 这里应该显示验证码图片 -->
+        <img src="{{ url_for('captcha_image') }}" alt="Captcha" onclick="this.src='{{ url_for('captcha_image') }}?' + Math.random();">
+    </p>
+    <p><input type="submit" value="注册"></p>
+</form>
+{% endblock %}

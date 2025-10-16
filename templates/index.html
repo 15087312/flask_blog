@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>博客首页</h1>
+{% for post in posts %}
+    <article>
+        <h2><a href="{{ url_for('view_post', post_id=post.id) }}">{{ post.title }}</a></h2>
+        <p>作者: {{ post.author.username }}</p>
+        <p>{{ post.body[:100] }}{% if post.body|length > 100 %}...{% endif %}</p>
+    </article>
+    <hr>
+{% else %}
+    <p>暂无文章。</p>
+{% endfor %}
+{% endblock %}
