@@ -104,3 +104,28 @@ hr {
         max-width: 100%;
     }
 }
+
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2em;
+}
+
+.profile-info {
+    margin-top: 2em;
+    background: #fff;
+    padding: 2em;
+    border-radius: 6px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    max-width: 500px;
+}
+
+.profile-info h3 {
+    margin: 0.5em 0;
+    color: #4e73df;
+}
+
+input[type="file"] {
+    margin: 1em 0;
+}

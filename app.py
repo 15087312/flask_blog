@@ -1,3 +1,4 @@
+from sqlalchemy import create_engine, Column, Integer, String
 from flask import Flask, render_template, redirect, url_for, flash, request, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -12,7 +13,15 @@ from itsdangerous import URLSafeTimedSerializer
 
 from models import db, User, Post
 from forms import LoginForm, RegisterForm, PostForm
+# 在现有import后添加
+from flask import request, current_app
+from werkzeug.utils import secure_filename
+import os
 
+def allowed_file(filename):
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'replace-this-with-a-secure-key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
@@ -152,6 +161,43 @@ def new_post():
         flash('发布成功')
         return redirect(url_for('index'))
     return render_template('post.html', form=form)
+
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        # 处理头像上传
+        if 'avatar' not in request.files:
+            flash('没有选择文件')
+            return redirect(request.url)
+
+        file = request.files['avatar']
+        if file.filename == '':
+            flash('没有选择文件')
+            return redirect(request.url)
+
+        if file:
+            filename = secure_filename(file.filename)
+            if not allowed_file(filename):
+                flash('不允许的文件类型')
+                return redirect(request.url)
+
+            # 创建uploads目录如果不存在
+            upload_dir = os.path.join(current_app.root_path, 'static/uploads')
+            os.makedirs(upload_dir, exist_ok=True)
+
+            # 保存文件
+            file_path = os.path.join(upload_dir, filename)
+            file.save(file_path)
+
+            # 更新用户头像信息
+            current_user.avatar = filename
+            db.session.commit()
+            flash('头像上传成功')
+            return redirect(url_for('profile'))
+
+    return render_template('profile.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

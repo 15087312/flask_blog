@@ -8,7 +8,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    email_confirmed = db.Column(db.Boolean, default=False)  # 添加邮箱验证状态字段
+    email_confirmed = db.Column(db.Boolean, default=False)
+    avatar = db.Column(db.String(120), nullable=True)  # 添加头像字段
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
