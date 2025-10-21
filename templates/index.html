@@ -1,15 +1,129 @@
+<meta charset="UTF-8">
+{# 继承基础模板base.html #}
+
 {% extends "base.html" %}
 
+{# 内容块开始 #}
 {% block content %}
-<h1>博客首页</h1>
+{# 页面标题 #}
+<h1>淘货首页</h1>
+
+{# 商品搜索表单 #}
+<form method="GET" action="{{ url_for('index') }}" class="search-form">
+    {# 搜索输入框 - 保留上次搜索内容 #}
+    <input type="text" name="q" placeholder="搜索商品..." value="{{ request.args.get('q', '') }}">
+    {# 搜索按钮 #}
+    <button type="submit">搜索</button>
+</form>
+
+{# 商品列表容器 #}
+<div class="products-container">
 {% for post in posts %}
-    <article>
+    {# 单个商品卡片 #}
+    <div class="product-card">
+        {# 商品标题 - 链接到详情页 #}
         <h2><a href="{{ url_for('view_post', post_id=post.id) }}">{{ post.title }}</a></h2>
-        <p>作者: {{ post.author.username }}</p>
-        <p>{{ post.body[:100] }}{% if post.body|length > 100 %}...{% endif %}</p>
-    </article>
+        {# 卖家信息 #}
+        <p class="product-seller">卖家: {{ post.author.username }}</p>
+        {# 商品描述 - 最多显示100个字符 #}
+        <p class="product-description">{{ post.body[:100] }}{% if post.body|length > 100 %}...{% endif %}</p>
+        {# 商品操作按钮 #}
+        <div class="product-actions">
+            <a href="{{ url_for('view_post', post_id=post.id) }}" class="view-product">查看商品详情</a>
+        </div>
+    </div>
     <hr>
 {% else %}
-    <p>暂无文章。</p>
+    {# 无商品时的提示 #}
+    <p class="no-products">暂无商品。</p>
 {% endfor %}
+</div>
+
+<style>
+    /* 商品列表容器样式 */
+    .products-container {
+        margin-top: 20px; /* 顶部外边距20像素 */
+    }
+
+    /* 商品卡片样式 */
+    .product-card {
+        padding: 15px;           /* 内边距15像素 */
+        border: 1px solid #eee;  /* 浅灰色边框 */
+        border-radius: 5px;      /* 圆角边框 */
+        margin-bottom: 15px;     /* 底部外边距15像素 */
+        transition: box-shadow 0.3s ease; /* 阴影动画效果 */
+    }
+
+    /* 商品卡片悬停效果 - 添加阴影 */
+    .product-card:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* 轻微阴影效果 */
+    }
+
+    /* 卖家信息样式 */
+    .product-seller {
+        color: #666;      /* 灰色文字 */
+        font-size: 0.9em; /* 较小字体 */
+        margin: 5px 0;    /* 上下外边距5像素 */
+    }
+
+    /* 商品描述样式 */
+    .product-description {
+        color: #333;       /* 深灰色文字 */
+        line-height: 1.5;  /* 行高1.5倍 */
+    }
+
+    /* 商品操作按钮容器样式 */
+    .product-actions {
+        margin-top: 10px; /* 顶部外边距10像素 */
+    }
+
+    /* 查看商品按钮样式 */
+    .view-product {
+        color: #4e73df;       /* 蓝色文字 */
+        text-decoration: none; /* 去除下划线 */
+        font-weight: bold;     /* 加粗字体 */
+    }
+
+    /* 查看商品按钮悬停效果 - 添加下划线 */
+    .view-product:hover {
+        text-decoration: underline; /* 添加下划线 */
+    }
+
+    /* 无商品提示样式 */
+    .no-products {
+        text-align: center; /* 文字居中 */
+        color: #666;       /* 灰色文字 */
+        font-style: italic; /* 斜体 */
+        padding: 40px 0;    /* 上下内边距40像素 */
+    }
+
+    /* 搜索表单样式 */
+    .search-form {
+        margin: 20px 0; /* 上下外边距20像素 */
+    }
+
+    /* 搜索输入框样式 */
+    .search-form input[type="text"] {
+        padding: 10px;      /* 内边距10像素 */
+        width: 300px;       /* 宽度300像素 */
+        border: 1px solid #ddd; /* 浅灰色边框 */
+        border-radius: 4px; /* 圆角边框 */
+    }
+
+    /* 搜索按钮样式 */
+    .search-form button {
+        padding: 10px 15px;  /* 内边距 */
+        background-color: #4e73df; /* 蓝色背景 */
+        color: white;        /* 白色文字 */
+        border: none;       /* 无边框 */
+        border-radius: 4px; /* 圆角边框 */
+        cursor: pointer;    /* 鼠标指针变为手形 */
+        margin-left: 10px;  /* 左侧外边距10像素 */
+    }
+
+    /* 搜索按钮悬停效果 - 深蓝色背景 */
+    .search-form button:hover {
+        background-color: #2e59d9; /* 深蓝色背景 */
+    }
+</style>
 {% endblock %}

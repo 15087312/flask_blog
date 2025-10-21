@@ -1,18 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>个人中心</h2>
-<div class="profile-container">
+<div class="glass-card fade-in">
+    <h1>个人中心</h1>
+
     <div class="avatar-section">
         {% if current_user.avatar %}
             <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}"
-                 alt="用户头像"
-                 style="width: 150px; height: 150px; border-radius: 50%;">
+                 class="profile-avatar"
+                 alt="用户头像">
         {% else %}
-            <div style="width: 150px; height: 150px; border-radius: 50%;
-                        background-color: #4e73df; color: white;
-                        display: flex; align-items: center; justify-content: center;
-                        font-size: 2em;">
+            <div class="default-profile-avatar">
                 {{ current_user.username[0]|upper }}
             </div>
         {% endif %}
@@ -22,11 +20,57 @@
         <h3>用户名: {{ current_user.username }}</h3>
         <h3>邮箱: {{ current_user.email }}</h3>
 
-        <form method="POST" enctype="multipart/form-data">
-            <h3>上传头像</h3>
-            <input type="file" name="avatar" accept="image/*">
-            <input type="submit" value="上传">
+        <form method="POST" enctype="multipart/form-data" class="upload-form">
+            <h3>上传新头像</h3>
+            <input type="file" name="avatar" accept="image/*" class="form-control">
+            <button type="submit" class="btn-gradient">更新头像</button>
         </form>
+
+        <div class="logout-section">
+            <form action="{{ url_for('logout') }}" method="POST">
+                <button type="submit" class="btn-gradient logout-btn">
+                    退出登录
+                </button>
+            </form>
+        </div>
     </div>
 </div>
+
+<style>
+    .profile-avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--accent);
+    }
+
+    .default-profile-avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background-color: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3em;
+        font-weight: bold;
+    }
+
+    .profile-info {
+        margin-top: 2rem;
+    }
+
+    .upload-form {
+        margin: 2rem 0;
+    }
+
+    .logout-btn {
+        background: linear-gradient(to right, #ff4b4b, #d32f2f);
+        display: inline-block;
+        padding: 12px 24px;
+        margin-top: 1rem;
+    }
+</style>
 {% endblock %}

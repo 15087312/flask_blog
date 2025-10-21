@@ -1,17 +1,38 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>{% if form.title.data %}{{ form.title.data }}{% else %}新建文章{% endif %}</h1>
-<form method="POST">
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.title.label }}<br>
-        {{ form.title(size=60) }}
-    </p>
-    <p>
-        {{ form.body.label }}<br>
-        {{ form.body(rows=10, cols=60) }}
-    </p>
-    <p><input type="submit" value="发布"></p>
-</form>
+<div class="glass-card fade-in">
+    <h1>发布商品</h1>
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.title.label }}<br>
+            {{ form.title(size=32) }}<br>
+            {% for error in form.title.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </div>
+        <div>
+            {{ form.price.label }}<br>
+            {{ form.price(size=32) }}<br>
+            {% for error in form.price.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </div>
+        <div>
+            {{ form.status.label }}<br>
+            {{ form.status() }}<br>
+        </div>
+        <div>
+            {{ form.body.label }}<br>
+            {{ form.body(cols=50, rows=10) }}<br>
+            {% for error in form.body.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </div>
+        <div>
+            <button type="submit" class="btn-gradient">发布</button>
+        </div>
+    </form>
+</div>
 {% endblock %}
