@@ -5,12 +5,80 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        /* 头像容器样式 - 固定在右上角 */
-        .avatar-container {
+        /* 固定导航栏样式 */
+        .fixed-nav {
             position: fixed;
-            top: 10px;
-            right: 20px;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to right, #4361ee, #4895ef);
+            padding: 10px 20px;
             z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            {% if request.path.startswith('/admin') %}
+            border-bottom: 3px solid #ff5722;
+            {% endif %}
+        }
+
+        .admin-mode-indicator {
+            position: fixed;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff5722;
+            color: white;
+            padding: 2px 15px;
+            border-radius: 0 0 4px 4px;
+            font-size: 12px;
+            z-index: 1001;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        .nav-link, .nav-button {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .nav-button {
+            background: rgba(255,255,255,0.2);
+            margin-left: 10px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+    .nav-left, .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+        .nav-avatar .avatar-img {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .nav-avatar .avatar-img:hover {
+            transform: scale(1.1);
         }
         /* 头像图片样式 - 圆形头像 */
         .avatar-img {
@@ -84,37 +152,96 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
+        .dark-mode-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: all 0.5s ease, transform 0.5s ease;
+        }
+
+        .dark-mode-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .dark-mode-toggle:active {
+            transform: scale(0.9);
+        }
+
+        nav {
+            transition: background 0.5s ease;
+        }
+
+        /* 夜晚模式样式 */
+        body.dark-mode {
+            --primary: #a0a0a0;
+            --secondary: #808080;
+            --accent: #c0c0c0;
+            --dark: #f0f0f0;
+            --light: #222222;
+            --glass: rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #222 0%, #444 100%);
+            color: #f0f0f0;
+        }
+
+        body.dark-mode nav {
+            background: linear-gradient(to right, #333, #555);
+        }
+
+        body.dark-mode .glass-card {
+            background: var(--glass);
+            border: 1px solid rgba(0, 0, 0, 0.18);
+        }
+        /* 导航栏占位符 */
+        .nav-placeholder {
+            height: 60px; /* 与导航栏高度匹配 */
+            width: 100%;
+        }
     </style>
 </head>
 <body>
-    <!-- 主导航栏 -->
-    <nav>
-        <!-- 首页链接 -->
-        <a href="{{ url_for('index') }}">首页</a>
+    <!-- 导航栏占位符 -->
+    <div class="nav-placeholder"></div>
 
-        <!-- 用户认证状态判断 -->
-        {% if current_user.is_authenticated %}
-            <!-- 已登录用户显示新建文章链接 -->
-            <div class="post-button-container">
-                <a href="{{ url_for('new_post') }}" class="post-button">发布商品</a>
+    <!-- 修改后的导航栏 -->
+    {% if request.path.startswith('/admin') %}
+    <div class="admin-mode-indicator">管理员模式</div>
+    {% endif %}
+    <nav class="fixed-nav">
+        <div class="nav-content">
+            <!-- 左侧导航链接 -->
+            <div class="nav-left">
+                <a href="{{ url_for('index') }}" class="nav-link">首页</a>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('new_post') }}" class="nav-button">发布商品</a>
+                {% endif %}
             </div>
-        {% endif %}
 
-        <!-- 认证按钮区域 - 始终显示 -->
-        <div class="auth-buttons">
-            <!-- 头像容器，点击跳转到个人资料页或登录页 -->
-            <div class="avatar-container" onclick="window.location.href='{{ url_for('profile') if current_user.is_authenticated else url_for('login') }}'">
-                <!-- 默认头像显示 -->
-                <div class="avatar-img default-avatar">
-                    {{ current_user.username[0]|upper if current_user.is_authenticated else "登录" }}
-                </div>
+            <!-- 右侧用户操作 -->
+            <div class="nav-right">
+                {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('login') }}" class="nav-button">登录</a>
+                    <a href="{{ url_for('register') }}" class="nav-button">注册</a>
+                {% endif %}
+                {% if current_user.is_authenticated %}
+                    <div class="nav-avatar" onclick="window.location.href='{{ url_for('profile') }}'">
+                        <div class="avatar-img">
+                            {{ current_user.username[0]|upper }}
+                        </div>
+                    </div>
+                {% endif %}
             </div>
-            {% if not current_user.is_authenticated %}
-                <!-- 登录按钮 -->
-                <a href="{{ url_for('login') }}" class="auth-button">登录</a>
-                <!-- 注册按钮 -->
-                <a href="{{ url_for('register') }}" class="auth-button">注册</a>
-            {% endif %}
         </div>
     </nav>
     <!-- 消息提示区域 -->
@@ -135,5 +262,13 @@
     </div>
     <!-- 内容块，子模板可以覆盖此部分 -->
     {% block content %}{% endblock %}
+    <!-- 夜晚模式切换按钮 -->
+    <button class="dark-mode-toggle">
+        ☀️
+    </button>
+
+    <!-- 引入JavaScript文件 -->
+    <script src="{{ url_for('static', filename='js/dark-mode.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

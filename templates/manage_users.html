@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-container">
+    <h1>用户管理系统</h1>
+
+    <div class="user-list">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>用户名</th>
+                    <th>邮箱</th>
+                    <th>状态</th>
+                    <th>角色</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td class="status-{{ 'active' if user.is_active else 'banned' }}">
+                        {{ '活跃' if user.is_active else '封禁' }}
+                    </td>
+                    <td class="role-{{ 'admin' if user.is_admin else 'user' }}">
+                        {{ '管理员' if user.is_admin else '普通用户' }}
+                    </td>
+                    <td class="actions">
+                        <a href="{{ url_for('toggle_user', user_id=user.id) }}"
+                           class="btn-gradient {{ 'danger' if user.is_active else 'success' }}">
+                            {{ '封禁' if user.is_active else '解封' }}
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .admin-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    .status-active {
+        color: #2ecc71;
+    }
+
+    .status-banned {
+        color: #e74c3c;
+    }
+
+    .role-admin {
+        color: #9b59b6;
+    }
+
+    .role-user {
+        color: #3498db;
+    }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    /* 黑夜模式适配 */
+    body.dark-mode th {
+        background-color: #333;
+    }
+
+    body.dark-mode td {
+        border-color: #555;
+    }
+</style>
+{% endblock %}

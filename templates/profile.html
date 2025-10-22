@@ -20,19 +20,16 @@
         <h3>用户名: {{ current_user.username }}</h3>
         <h3>邮箱: {{ current_user.email }}</h3>
 
-        <form method="POST" enctype="multipart/form-data" class="upload-form">
-            <h3>上传新头像</h3>
-            <input type="file" name="avatar" accept="image/*" class="form-control">
-            <button type="submit" class="btn-gradient">更新头像</button>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="avatar">更新头像</label>
+                <input type="file" name="avatar" id="avatar" accept="image/*">
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="form-btn save-btn">保存更改</button>
+                <a href="{{ url_for('logout') }}" class="form-btn logout-btn">退出登录</a>
+            </div>
         </form>
-
-        <div class="logout-section">
-            <form action="{{ url_for('logout') }}" method="POST">
-                <button type="submit" class="btn-gradient logout-btn">
-                    退出登录
-                </button>
-            </form>
-        </div>
     </div>
 </div>
 
@@ -43,6 +40,7 @@
         border-radius: 50%;
         object-fit: cover;
         border: 3px solid var(--accent);
+        margin-bottom: 20px;
     }
 
     .default-profile-avatar {
@@ -56,21 +54,60 @@
         justify-content: center;
         font-size: 3em;
         font-weight: bold;
+        margin-bottom: 20px;
     }
 
     .profile-info {
         margin-top: 2rem;
     }
 
-    .upload-form {
+    .form-group {
         margin: 2rem 0;
+        width: 100%;
+        max-width: 500px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 1.1em;
+    }
+
+    .form-group input[type="file"] {
+        width: 100%;
+        padding: 10px;
+        font-size: 1em;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 2rem;
+    }
+
+    .form-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        text-decoration: none;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 1em;
+    }
+
+    .save-btn {
+        background: linear-gradient(to right, #4361ee, #3f37c9);
     }
 
     .logout-btn {
         background: linear-gradient(to right, #ff4b4b, #d32f2f);
-        display: inline-block;
-        padding: 12px 24px;
-        margin-top: 1rem;
+    }
+
+    .form-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 </style>
 {% endblock %}

@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-container">
+    <h1>数据统计面板</h1>
+
+    <div class="stats-grid">
+        <!-- 概览卡片 -->
+        <div class="stat-card">
+            <h3>用户总数</h3>
+            <div class="stat-value">{{ total_users }}</div>
+        </div>
+
+        <div class="stat-card">
+            <h3>活跃用户</h3>
+            <div class="stat-value">{{ active_users }}</div>
+        </div>
+
+        <div class="stat-card">
+            <h3>商品总数</h3>
+            <div class="stat-value">{{ total_posts }}</div>
+        </div>
+
+        <div class="stat-card">
+            <h3>已审核商品</h3>
+            <div class="stat-value">{{ approved_posts }}</div>
+        </div>
+    </div>
+
+    <div class="stats-section">
+        <h2>最近发布的商品</h2>
+        <div class="recent-list">
+            {% for post in recent_posts %}
+            <div class="recent-item">
+                <a href="{{ url_for('view_post', post_id=post.id) }}">{{ post.title }}</a>
+                <span class="post-meta">
+                    {{ post.created_at.strftime('%Y-%m-%d') }} |
+                    {{ post.author.username }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="stats-section">
+        <h2>浏览最多的商品</h2>
+        <div class="top-list">
+            {% for post in top_viewed %}
+            <div class="top-item">
+                <span class="views">{{ post.views }} 次浏览</span>
+                <a href="{{ url_for('view_post', post_id=post.id) }}">{{ post.title }}</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .admin-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 2rem 0;
+    }
+
+    .stat-card {
+        background: rgba(255,255,255,0.9);
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .stat-value {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #4361ee;
+        margin: 10px 0;
+    }
+
+    .stats-section {
+        margin: 3rem 0;
+    }
+
+    .recent-list, .top-list {
+        background: rgba(255,255,255,0.9);
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .recent-item, .top-item {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .recent-item:last-child, .top-item:last-child {
+        border-bottom: none;
+    }
+
+    .post-meta {
+        color: #666;
+        font-size: 0.9em;
+        margin-left: 10px;
+    }
+
+    .views {
+        display: inline-block;
+        width: 120px;
+        color: #e74c3c;
+        font-weight: bold;
+    }
+
+    /* 黑夜模式适配 */
+    body.dark-mode .stat-card,
+    body.dark-mode .recent-list,
+    body.dark-mode .top-list {
+        background: rgba(0,0,0,0.2);
+    }
+
+    body.dark-mode .post-meta {
+        color: #aaa;
+    }
+</style>
+{% endblock %}

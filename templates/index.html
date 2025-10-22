@@ -5,15 +5,16 @@
 
 {# 内容块开始 #}
 {% block content %}
-{# 页面标题 #}
-<h1>淘货首页</h1>
+{# 页面标题 - 带背景框的艺术字效果 #}
+<div class="title-container">
+    <h1 class="artistic-title">淘货首页</h1>
+</div>
 
-{# 商品搜索表单 #}
-<form method="GET" action="{{ url_for('index') }}" class="search-form">
-    {# 搜索输入框 - 保留上次搜索内容 #}
-    <input type="text" name="q" placeholder="搜索商品..." value="{{ request.args.get('q', '') }}">
-    {# 搜索按钮 #}
-    <button type="submit">搜索</button>
+{# 商品搜索表单 - 简化样式 #}
+
+<form method="get" class="search-form">
+    <input type="text" name="q" placeholder="搜索商品..." value="{{ request.args.get('q', '') }}" class="search-input">
+    <button type="submit" class="search-btn">搜索</button>
 </form>
 
 {# 商品列表容器 #}
@@ -79,7 +80,7 @@
 
     /* 查看商品按钮样式 */
     .view-product {
-        color: #4e73df;       /* 蓝色文字 */
+        color: #2a66e4;       /* 蓝色文字 */
         text-decoration: none; /* 去除下划线 */
         font-weight: bold;     /* 加粗字体 */
     }
@@ -97,33 +98,104 @@
         padding: 40px 0;    /* 上下内边距40像素 */
     }
 
-    /* 搜索表单样式 */
-    .search-form {
-        margin: 20px 0; /* 上下外边距20像素 */
+    /* 标题容器 */
+    .title-container {
+        background: rgba(255,255,255,0.9);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        margin: 20px 0;
+        backdrop-filter: blur(5px);
     }
 
+    /* 艺术字标题样式 */
+    .artistic-title {
+        font-family: 'Arial', sans-serif;
+        background: linear-gradient(to right, #4361ee, #4895ef);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        font-size: 2.5em;
+        margin: 0;
+    }
+
+    /* 黑夜模式适配 */
+    body.dark-mode .title-container {
+        background: rgba(0,0,0,0.2);
+    }
+
+
+    /* 搜索表单样式 */
+
+
+    .search-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: none;
+    border: none;
+    padding: 0;
+    position: relative;
+    width: fit-content;
+    box-shadow: none;
+}
+
+
     /* 搜索输入框样式 */
-    .search-form input[type="text"] {
-        padding: 10px;      /* 内边距10像素 */
-        width: 300px;       /* 宽度300像素 */
-        border: 1px solid #ddd; /* 浅灰色边框 */
-        border-radius: 4px; /* 圆角边框 */
+    .search-input {
+        padding: 12px 20px;
+        width: 400px;
+        border: 2px solid #4361ee;
+        border-radius: 25px;
+        outline: none;
+        font-size: 1em;
+        transition: all 0.3s;
+        background: white;
+
     }
 
     /* 搜索按钮样式 */
-    .search-form button {
-        padding: 10px 15px;  /* 内边距 */
-        background-color: #4e73df; /* 蓝色背景 */
-        color: white;        /* 白色文字 */
-        border: none;       /* 无边框 */
-        border-radius: 4px; /* 圆角边框 */
-        cursor: pointer;    /* 鼠标指针变为手形 */
-        margin-left: 10px;  /* 左侧外边距10像素 */
+    .search-btn {
+    display: inline-block; /* 显示按钮 */
+    padding: 10px 15px;
+    background-color: #4e73df;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+    .search-btn:hover {
+        background-color: #3f37c9;
     }
 
-    /* 搜索按钮悬停效果 - 深蓝色背景 */
-    .search-form button:hover {
-        background-color: #2e59d9; /* 深蓝色背景 */
+    /* 黑夜模式适配 */
+    body.dark-mode .artistic-title {
+        background: linear-gradient(to right, #a0a0a0, #c0c0c0);
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+
+
+    /* 黑夜模式适配 */
+    body.dark-mode .search-input {
+        background-color: #333;
+        color: #f0f0f0;
+        border-color: #a0a0a0;
+    }
+
+    body.dark-mode .search-btn {
+        background-color: #555;
+    }
+
+    body.dark-mode .search-btn:hover {
+        background-color: #666;
+    }
+
+    body.dark-mode .search-input:focus {
+        border-color: #c0c0c0;
+        box-shadow: 0 0 8px rgba(160, 160, 160, 0.3);
     }
 </style>
 {% endblock %}

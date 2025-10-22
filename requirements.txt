@@ -1,4 +1,10 @@
-Flask
-Flask-SQLAlchemy
-Flask-WTF
-Flask-Login
+Flask==2.3.2
+Flask-SQLAlchemy==3.0.3
+Flask-WTF==1.1.1
+Flask-Login==0.6.2
+Flask-Mail==0.9.1
+Flask-Migrate==4.0.4
+Pillow==10.0.1
+itsdangerous==2.1.2
+python-dotenv==1.0.0
+email-validator==2.0.0

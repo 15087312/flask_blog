@@ -96,6 +96,37 @@ def index():  # 显示首页文章列表
     posts = Post.query.order_by(Post.id.desc()).all()
     return render_template('index.html', posts=posts)
 
+@app.route('/post/<int:post_id>')
+def view_post(post_id):  # 查看商品详情
+    post = Post.query.get_or_404(post_id)
+    return render_template('post_detail.html', post=post)
+
+@app.route('/post/<int:post_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if current_user.id != post.author_id:
+        flash('您无权编辑此商品')
+        return redirect(url_for('view_post', post_id=post.id))
+
+    form = PostForm()
+    if form.validate_on_submit():
+        post.title = form.title.data
+        post.body = form.body.data
+        post.price = form.price.data
+        post.status = form.status.data
+        db.session.commit()
+        flash('商品信息已更新')
+        return redirect(url_for('view_post', post_id=post.id))
+
+    # 预填充表单
+    form.title.data = post.title
+    form.body.data = post.body
+    form.price.data = post.price
+    form.status.data = post.status
+
+    return render_template('post.html', form=form, post=post, editing=True)
+
 @app.route('/captcha')
 def captcha_image():  # 生成验证码图片
     # 生成随机验证码
@@ -323,6 +354,134 @@ def verify_reset_token(token):
         return data['user_id']
     except:
         return None
+
+# 管理员创建路由 (需特殊验证)
+@app.route('/admin/create/<secret>', methods=['GET', 'POST'])
+def create_admin(secret):
+    if secret != '134679852':
+        abort(404)
+
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        email = request.form.get('email')
+
+        if not all([username, password, email]):
+            flash('请填写所有字段')
+            return redirect(url_for('create_admin', secret=secret))
+
+        # 检查用户是否已存在
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            # 升级现有用户为管理员
+            existing_user.is_admin = True
+            existing_user.is_active = True
+            existing_user.email_confirmed = True
+            db.session.commit()
+            flash('该邮箱已存在，账户已升级为管理员')
+        else:
+            # 创建新管理员
+            user = User(
+                username=username,
+                email=email,
+                is_admin=True,
+                is_active=True,
+                email_confirmed=True
+            )
+            user.password = password
+            db.session.add(user)
+            db.session.commit()
+            flash('管理员账户创建成功')
+        return redirect(url_for('login'))
+
+    return render_template('create_admin.html')
+
+# 后台管理面板
+@app.route('/admin')
+@login_required
+def admin_panel():
+    if not current_user.is_admin:
+        flash('无权访问此页面')
+        return redirect(url_for('index'))
+
+    posts = Post.query.order_by(Post.id.desc()).all()
+    return render_template('admin_panel.html', posts=posts)
+
+# 下架商品
+@app.route('/admin/remove_post/<int:post_id>')
+@login_required
+def remove_post(post_id):
+    if not current_user.is_admin:
+        flash('无权执行此操作')
+        return redirect(url_for('index'))
+
+    post = Post.query.get_or_404(post_id)
+    post.status = 'removed'
+    db.session.commit()
+    flash('商品已下架')
+    return redirect(url_for('admin_panel'))
+
+# 用户管理
+@app.route('/admin/users')
+@login_required
+def manage_users():
+    if not current_user.is_admin:
+        flash('无权访问此页面')
+        return redirect(url_for('index'))
+
+    users = User.query.order_by(User.id.desc()).all()
+    return render_template('manage_users.html', users=users)
+
+@app.route('/admin/toggle_user/<int:user_id>')
+@login_required
+def toggle_user(user_id):
+    if not current_user.is_admin:
+        flash('无权执行此操作')
+        return redirect(url_for('index'))
+
+    user = User.query.get_or_404(user_id)
+    user.is_active = not user.is_active
+    db.session.commit()
+    flash(f'用户 {user.username} 状态已更新')
+    return redirect(url_for('manage_users'))
+
+# 商品审核
+@app.route('/admin/approve_post/<int:post_id>')
+@login_required
+def approve_post(post_id):
+    if not current_user.is_admin:
+        flash('无权执行此操作')
+        return redirect(url_for('index'))
+
+    post = Post.query.get_or_404(post_id)
+    post.is_approved = True
+    db.session.commit()
+    flash('商品已审核通过')
+    return redirect(url_for('admin_panel'))
+
+# 数据统计面板
+@app.route('/admin/stats')
+@login_required
+def admin_stats():
+    if not current_user.is_admin:
+        flash('无权访问此页面')
+        return redirect(url_for('index'))
+
+    # 统计数据
+    total_users = User.query.count()
+    active_users = User.query.filter_by(is_active=True).count()
+    total_posts = Post.query.count()
+    approved_posts = Post.query.filter_by(is_approved=True).count()
+    recent_posts = Post.query.order_by(Post.created_at.desc()).limit(5).all()
+    top_viewed = Post.query.order_by(Post.views.desc()).limit(5).all()
+
+    return render_template('admin_stats.html',
+                         total_users=total_users,
+                         active_users=active_users,
+                         total_posts=total_posts,
+                         approved_posts=approved_posts,
+                         recent_posts=recent_posts,
+                         top_viewed=top_viewed)
 
 @app.errorhandler(404)
 def page_not_found(e):
