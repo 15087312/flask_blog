@@ -1,0 +1,421 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="title-container">
+    <h1 class="artistic-title">商品搜索</h1>
+</div>
+
+<!-- 搜索表单 -->
+<form method="get" action="{{ url_for('search') }}" class="search-form glass-form">
+    <input type="text" name="query" placeholder="搜索商品..." value="{{ query }}" class="search-input" autofocus>
+    <button type="submit" class="search-btn">搜索</button>
+</form>
+
+<!-- 搜索结果统计 -->
+{% if query %}
+<div class="search-stats">
+    <p>搜索 "<strong>{{ query }}</strong>" 找到 <strong>{{ results|length }}</strong> 个结果</p>
+</div>
+{% endif %}
+
+<!-- 搜索结果列表 -->
+<div class="products-container">
+{% if results %}
+    {% for post in results %}
+    <div class="product-card">
+        <h2><a href="{{ url_for('view_post', post_id=post.id) }}">{{ post.title }}</a></h2>
+        <p class="product-seller">卖家: {{ post.author.username }}</p>
+        <p class="product-price">价格: ¥{{ "%.2f"|format(post.price) }}</p>
+        <p class="product-description">{{ post.body[:150] }}{% if post.body|length > 150 %}...{% endif %}</p>
+        <div class="product-meta">
+            <span class="product-status status-{{ post.status }}">
+                {% if post.status == 'available' %}可购买
+                {% elif post.status == 'reserved' %}已预订
+                {% elif post.status == 'sold' %}已售出
+                {% else %}{{ post.status }}
+                {% endif %}
+            </span>
+            <span class="product-views">浏览: {{ post.views }}</span>
+        </div>
+        <div class="product-actions">
+            <a href="{{ url_for('view_post', post_id=post.id) }}" class="view-product">查看详情</a>
+        </div>
+    </div>
+    {% endfor %}
+{% elif query %}
+    <div class="no-results">
+        <p>😔 没有找到相关商品</p>
+        <p class="suggestion">试试其他关键词吧</p>
+    </div>
+{% else %}
+    <div class="search-hint">
+        <p>💡 在上方输入关键词搜索商品</p>
+    </div>
+{% endif %}
+</div>
+
+<style>
+    /* 标题容器 */
+    .title-container {
+        background: rgba(255,255,255,0.9);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        margin: 20px 0;
+        backdrop-filter: blur(5px);
+    }
+
+    /* 艺术字标题样式 */
+    .artistic-title {
+        font-family: 'Arial', sans-serif;
+        background: linear-gradient(to right, #4361ee, #4895ef);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        font-size: 2.5em;
+        margin: 0;
+        text-align: center;
+    }
+
+    /* 搜索表单样式 */
+    .search-form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: none;
+        border: none;
+        padding: 0;
+        position: relative;
+        width: fit-content;
+        box-shadow: none;
+        margin: 30px auto;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* 透明表单样式 */
+    .glass-form {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border-radius: 25px;
+        padding: 10px 20px;
+    }
+
+    body.dark-mode .glass-form {
+        background: rgba(0, 0, 0, 0.15);
+    }
+
+    /* 搜索输入框样式 */
+    .search-input {
+        padding: 12px 20px;
+        width: 400px;
+        border: 2px solid #4361ee;
+        border-radius: 25px;
+        outline: none;
+        font-size: 1em;
+        transition: all 0.3s;
+        background: white;
+    }
+
+    .glass-form .search-input {
+        background: transparent;
+        color: #333;
+        border: 2px solid #4361ee;
+    }
+
+    .glass-form .search-input::placeholder {
+        color: rgba(0, 0, 0, 0.6);
+    }
+
+    .search-input:focus {
+        border-color: #3f37c9;
+        box-shadow: 0 0 10px rgba(67, 97, 238, 0.3);
+    }
+
+    /* 搜索按钮样式 */
+    .search-btn {
+        display: inline-block;
+        padding: 10px 15px;
+        background-color: #4e73df;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+    .search-btn:hover {
+        background-color: #3f37c9;
+    }
+
+    body.dark-mode .search-btn {
+        background-color: #555;
+    }
+
+    body.dark-mode .search-btn:hover {
+        background-color: #666;
+    }
+
+    body.dark-mode .glass-form .search-input {
+        background: transparent;
+        color: #f0f0f0;
+        border: 2px solid #a0a0a0;
+    }
+
+    body.dark-mode .glass-form .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    body.dark-mode .search-input:focus {
+        border-color: #c0c0c0;
+        box-shadow: 0 0 8px rgba(160, 160, 160, 0.3);
+    }
+
+    /* 搜索统计 */
+    .search-stats {
+        text-align: center;
+        margin: 20px 0;
+        padding: 15px;
+        background: rgba(67, 97, 238, 0.1);
+        border-radius: 8px;
+    }
+
+    .search-stats p {
+        margin: 0;
+        color: #333;
+        font-size: 1.1em;
+    }
+
+    /* 商品列表容器 */
+    .products-container {
+        margin-top: 20px;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* 商品卡片样式 */
+    .product-card {
+        padding: 20px;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        background: white;
+        transition: all 0.3s ease;
+    }
+
+    .product-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+    .product-card h2 {
+        margin: 0 0 10px 0;
+        font-size: 1.5em;
+    }
+
+    .product-card h2 a {
+        color: #2a66e4;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .product-card h2 a:hover {
+        color: #3f37c9;
+        text-decoration: underline;
+    }
+
+    /* 卖家信息 */
+    .product-seller {
+        color: #666;
+        font-size: 0.9em;
+        margin: 5px 0;
+    }
+
+    /* 价格样式 */
+    .product-price {
+        color: #e74c3c;
+        font-size: 1.2em;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+
+    /* 商品描述 */
+    .product-description {
+        color: #333;
+        line-height: 1.6;
+        margin: 15px 0;
+    }
+
+    /* 商品元信息 */
+    .product-meta {
+        display: flex;
+        gap: 15px;
+        margin: 15px 0;
+        align-items: center;
+    }
+
+    /* 商品状态 */
+    .product-status {
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-size: 0.85em;
+        font-weight: bold;
+    }
+
+    .status-available {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-reserved {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-sold {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .status-removed {
+        background: #e2e3e5;
+        color: #383d41;
+    }
+
+    /* 浏览次数 */
+    .product-views {
+        color: #666;
+        font-size: 0.9em;
+    }
+
+    /* 商品操作 */
+    .product-actions {
+        margin-top: 15px;
+    }
+
+    .view-product {
+        color: #2a66e4;
+        text-decoration: none;
+        font-weight: bold;
+        padding: 8px 20px;
+        border: 2px solid #2a66e4;
+        border-radius: 20px;
+        display: inline-block;
+        transition: all 0.3s;
+    }
+
+    .view-product:hover {
+        background: #2a66e4;
+        color: white;
+    }
+
+    /* 无结果提示 */
+    .no-results {
+        text-align: center;
+        padding: 60px 20px;
+        background: rgba(255,255,255,0.9);
+        border-radius: 10px;
+        margin: 40px 0;
+    }
+
+    .no-results p {
+        font-size: 1.3em;
+        color: #666;
+        margin: 10px 0;
+    }
+
+    .suggestion {
+        font-size: 1em !important;
+        color: #999 !important;
+    }
+
+    /* 搜索提示 */
+    .search-hint {
+        text-align: center;
+        padding: 80px 20px;
+        color: #999;
+    }
+
+    .search-hint p {
+        font-size: 1.2em;
+    }
+
+    /* 黑夜模式适配 */
+    body.dark-mode .title-container {
+        background: rgba(0,0,0,0.2);
+    }
+
+    body.dark-mode .artistic-title {
+        background: linear-gradient(to right, #a0a0a0, #c0c0c0);
+        -webkit-background-clip: text;
+        background-clip: text;
+    }
+
+    body.dark-mode .search-input {
+        background-color: #333;
+        color: #f0f0f0;
+        border-color: #a0a0a0;
+    }
+
+    body.dark-mode .search-input:focus {
+        border-color: #c0c0c0;
+        box-shadow: 0 0 10px rgba(160, 160, 160, 0.3);
+    }
+
+    body.dark-mode .glass-form .search-input {
+        background: transparent;
+        color: #f0f0f0;
+    }
+
+    body.dark-mode .glass-form .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    body.dark-mode .search-btn {
+        background: linear-gradient(to right, #555, #666);
+    }
+
+    body.dark-mode .search-stats {
+        background: rgba(160, 160, 160, 0.1);
+    }
+
+    body.dark-mode .search-stats p {
+        color: #f0f0f0;
+    }
+
+    body.dark-mode .product-card {
+        background: rgba(0,0,0,0.15);
+        border-color: rgba(255,255,255,0.1);
+    }
+
+    body.dark-mode .product-card h2 a {
+        color: #a0a0a0;
+    }
+
+    body.dark-mode .product-card h2 a:hover {
+        color: #c0c0c0;
+    }
+
+    body.dark-mode .product-description {
+        color: #f0f0f0;
+    }
+
+    body.dark-mode .no-results {
+        background: rgba(0,0,0,0.2);
+    }
+
+    body.dark-mode .no-results p {
+        color: #f0f0f0;
+    }
+
+    body.dark-mode .suggestion {
+        color: #a0a0a0 !important;
+    }
+
+    body.dark-mode .search-hint {
+        color: #a0a0a0;
+    }
+</style>
+{% endblock %}

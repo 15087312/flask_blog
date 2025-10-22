@@ -223,6 +223,7 @@
             <!-- 左侧导航链接 -->
             <div class="nav-left">
                 <a href="{{ url_for('index') }}" class="nav-link">首页</a>
+                <a href="{{ url_for('search') }}" class="nav-link">搜索</a>
                 {% if current_user.is_authenticated %}
                     <a href="{{ url_for('new_post') }}" class="nav-button">发布商品</a>
                 {% endif %}
@@ -231,7 +232,6 @@
             <!-- 右侧用户操作 -->
             <div class="nav-right">
                 {% if not current_user.is_authenticated %}
-                    <a href="{{ url_for('login') }}" class="nav-button">登录</a>
                     <a href="{{ url_for('register') }}" class="nav-button">注册</a>
                 {% endif %}
                 {% if current_user.is_authenticated %}

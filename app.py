@@ -6,19 +6,21 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import session
 import random
-import string
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 
 from models import db, User, Post
-from forms import LoginForm, RegisterForm, PostForm
+from forms import LoginForm, RegisterForm, PostForm, SearchForm
 # 在现有import后添加
 from flask import request, current_app
 from werkzeug.utils import secure_filename
 import os
 
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired
 def allowed_file(filename):  # 检查文件扩展名是否允许上传
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
     return '.' in filename and \
@@ -93,8 +95,25 @@ def create_tables():  # 确保数据库表已创建
 
 @app.route('/')
 def index():  # 显示首页文章列表
-    posts = Post.query.order_by(Post.id.desc()).all()
+    # 只显示已审核通过的商品
+    posts = Post.query.filter_by(is_approved=True).order_by(Post.id.desc()).all()
     return render_template('index.html', posts=posts)
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():  # 搜索商品
+    form = SearchForm()
+    query = request.args.get('query', '')
+    results = []
+    
+    if query:
+        # 搜索标题或描述中包含关键词的商品(只显示已审核通过的)
+        search_pattern = f'%{query}%'
+        results = Post.query.filter(
+            (Post.title.like(search_pattern)) | 
+            (Post.body.like(search_pattern))
+        ).filter_by(is_approved=True).order_by(Post.id.desc()).all()
+    
+    return render_template('search.html', form=form, results=results, query=query)
 
 @app.route('/post/<int:post_id>')
 def view_post(post_id):  # 查看商品详情
@@ -237,11 +256,12 @@ def new_post():
             body=form.body.data,
             price=form.price.data,
             status=form.status.data,
-            author=current_user
+            author=current_user,
+            is_approved=False  # 新发布的商品默认未审核
         )
         db.session.add(post)
         db.session.commit()
-        flash('发布成功')
+        flash('商品已提交，等待管理员审核')
         return redirect(url_for('index'))
     return render_template('post.html', form=form)
 

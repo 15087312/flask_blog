@@ -31,7 +31,6 @@ class PostForm(FlaskForm):
         ('reserved', '已预订'),
         ('sold', '已售出')
     ], default='available')
-
 class RequestResetForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     captcha = StringField('Captcha', validators=[DataRequired()])
@@ -40,3 +39,6 @@ class RequestResetForm(FlaskForm):
 class ResetPasswordForm(FlaskForm):
     password = PasswordField('New Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired()])
+
+class SearchForm(FlaskForm):
+    query = StringField('搜索', validators=[DataRequired()])
