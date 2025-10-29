@@ -7,6 +7,9 @@
     <div class="product-meta">
         <span class="product-price">¥{{ "%.2f"|format(post.price) }}</span>
         <span class="product-status {{ post.status }}">{{ post.status }}</span>
+        {% if not post.is_approved %}
+            <span class="product-status not-approved">未审核</span>
+        {% endif %}
         <span class="product-seller">卖家: {{ post.author.username }}</span>
         <span class="product-date">发布时间: {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
     </div>
@@ -62,6 +65,11 @@
 
     .product-status.reserved {
         background: #f39c12;
+        color: white;
+    }
+
+    .product-status.not-approved {
+        background: #95a5a6;
         color: white;
     }
 

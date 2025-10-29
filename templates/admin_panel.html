@@ -15,9 +15,17 @@
             <h3>{{ post.title }}</h3>
             <p>价格: ¥{{ "%.2f"|format(post.price) }}</p>
             <p>状态: <span class="status-{{ post.status }}">{{ post.status }}</span></p>
+            {% if not post.is_approved %}
+                <p>审核状态: <span class="status-not-approved">未审核</span></p>
+            {% else %}
+                <p>审核状态: <span class="status-approved">已审核</span></p>
+            {% endif %}
             <p>卖家: {{ post.author.username }}</p>
             <div class="admin-actions">
                 <a href="{{ url_for('view_post', post_id=post.id) }}" class="btn-gradient">查看</a>
+                {% if not post.is_approved %}
+                    <a href="{{ url_for('approve_post', post_id=post.id) }}" class="btn-gradient success">审核通过</a>
+                {% endif %}
                 {% if post.status != 'removed' %}
                 <a href="{{ url_for('remove_post', post_id=post.id) }}" class="btn-gradient danger">下架</a>
                 {% endif %}
@@ -64,8 +72,20 @@
         text-decoration: line-through;
     }
 
+    .status-not-approved {
+        color: #95a5a6;
+    }
+
+    .status-approved {
+        color: #2ecc71;
+    }
+
     .btn-gradient.danger {
         background: linear-gradient(to right, #ff4b4b, #d32f2f);
+    }
+
+    .btn-gradient.success {
+        background: linear-gradient(to right, #2ecc71, #27ae60);
     }
 
     /* 黑夜模式适配 */

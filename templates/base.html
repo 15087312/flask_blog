@@ -47,11 +47,15 @@
             padding: 8px 15px;
             border-radius: 4px;
             transition: all 0.3s;
+            display: inline-block;
         }
 
         .nav-button {
             background: rgba(255,255,255,0.2);
             margin-left: 10px;
+            min-width: 80px;
+            text-align: center;
+            display: inline-block;
         }
 
         .nav-button:hover {
@@ -100,57 +104,6 @@
             align-items: center;      /* 垂直居中 */
             justify-content: center;  /* 水平居中 */
             font-weight: bold;        /* 加粗字体 */
-        }
-        /* 认证按钮容器 - 登录/注册/登出按钮组 */
-        .auth-buttons {
-            position: fixed;     /* 固定定位 */
-            top: 15px;          /* 距离顶部15像素 */
-            right: 70px;        /* 距离右侧70像素，留出头像空间 */
-            display: flex;      /* 弹性布局 */
-            gap: 10px;          /* 按钮间距10像素 */
-            z-index: 1000;      /* 确保在最上层 */
-        }
-        /* 认证按钮样式 - 登录/注册/登出按钮 */
-        .auth-button {
-            color: #666;         /* 灰色文字 */
-            font-size: 14px;     /* 14像素字体大小 */
-            text-decoration: none;  /* 去除下划线 */
-            padding: 5px 10px;   /* 内边距 */
-            border-radius: 4px;  /* 圆角边框 */
-            transition: all 0.3s;  /* 所有属性变化动画，持续0.3秒 */
-        }
-        /* 认证按钮悬停效果 */
-        .auth-button:hover {
-            color: #333;         /* 悬停时文字颜色变深 */
-            background-color: #f0f0f0;  /* 悬停时背景变浅灰色 */
-        }
-        /* 认证按钮点击效果 */
-        .auth-button:active {
-            transform: scale(0.95);  /* 点击时轻微缩小 */
-        }
-        /* 发布商品按钮容器 */
-        .post-button-container {
-            position: fixed;
-            top: 20px;  /* 向下移动5px */
-            right: 120px;  /* 在头像框左边 */
-            z-index: 1000;
-        }
-
-        /* 发布商品按钮样式 */
-        .post-button {
-            background: linear-gradient(to right, #4361ee, #3f37c9);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-size: 14px;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .post-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         .dark-mode-toggle {
             position: fixed;
@@ -224,14 +177,15 @@
             <div class="nav-left">
                 <a href="{{ url_for('index') }}" class="nav-link">首页</a>
                 <a href="{{ url_for('search') }}" class="nav-link">搜索</a>
-                {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('new_post') }}" class="nav-button">发布商品</a>
-                {% endif %}
             </div>
 
             <!-- 右侧用户操作 -->
             <div class="nav-right">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('new_post') }}" class="nav-button">发布商品</a>
+                {% endif %}
                 {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('login') }}" class="nav-button">登录</a>
                     <a href="{{ url_for('register') }}" class="nav-button">注册</a>
                 {% endif %}
                 {% if current_user.is_authenticated %}

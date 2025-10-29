@@ -1,17 +1,76 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>用户登录</h2>
-<form method="POST">
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.username.label }}<br>
-        {{ form.username(size=32) }}
-    </p>
-    <p>
-        {{ form.password.label }}<br>
-        {{ form.password(size=32) }}
-    </p>
-    <p><input type="submit" value="登录"></p>
-</form>
+<style>
+    .login-container {
+        max-width: 400px;
+        margin: 50px auto;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .login-form p {
+        margin: 15px 0;
+    }
+
+    .login-form input[type="text"],
+    .login-form input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+
+    .login-form input[type="submit"] {
+        width: 100%;
+        padding: 12px;
+        background: #4361ee;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .login-form input[type="submit"]:hover {
+        background: #3a56d4;
+    }
+
+    .forgot-password {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .forgot-password a {
+        color: #4361ee;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .forgot-password a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="login-container">
+    <h2>用户登录</h2>
+    <form method="POST" class="login-form">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.username.label }}<br>
+            {{ form.username(size=32) }}
+        </p>
+        <p>
+            {{ form.password.label }}<br>
+            {{ form.password(size=32) }}
+        </p>
+        <p><input type="submit" value="登录"></p>
+        <div class="forgot-password">
+            <a href="{{ url_for('reset_request') }}">忘记密码？</a>
+        </div>
+    </form>
+</div>
 {% endblock %}

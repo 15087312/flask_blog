@@ -14,11 +14,11 @@
     <div>
         {{ form.captcha.label }}<br>
         {{ form.captcha(size=32) }}<br>
-        <img src="{{ url_for('captcha') }}" onclick="this.src='{{ url_for('captcha') }}?'+Math.random()">
+        <img src="{{ url_for('captcha_image') }}" onclick="this.src='{{ url_for('captcha_image') }}?'+Math.random()">
         {% for error in form.captcha.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
     </div>
-    <div>{{ form.submit() }}</div>
+    <div><input type="submit" value="发送重置邮件"></div>
 </form>
 {% endblock %}

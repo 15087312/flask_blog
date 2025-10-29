@@ -6,14 +6,14 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import session
 import random
+import string
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 
 from models import db, User, Post
-from forms import LoginForm, RegisterForm, PostForm, SearchForm
-# 在现有import后添加
+from forms import LoginForm, RegisterForm, PostForm, SearchForm, RequestResetForm, ResetPasswordForm
 from flask import request, current_app
 from werkzeug.utils import secure_filename
 import os
@@ -90,13 +90,22 @@ tables_created = False
 def create_tables():  # 确保数据库表已创建
     global tables_created
     if not tables_created:
-        db.create_all()
-        tables_created = True
+        try:
+            db.create_all()
+            tables_created = True
+        except Exception as e:
+            print(f"Database table creation error: {e}")
+            pass  # 继续执行，不因数据库问题终止程序
 
 @app.route('/')
 def index():  # 显示首页文章列表
-    # 只显示已审核通过的商品
-    posts = Post.query.filter_by(is_approved=True).order_by(Post.id.desc()).all()
+    # 普通用户只能看到已审核通过的商品
+    if current_user.is_authenticated and current_user.is_admin:
+        # 管理员可以看到所有商品
+        posts = Post.query.order_by(Post.id.desc()).all()
+    else:
+        # 普通用户只能看到已审核的商品
+        posts = Post.query.filter_by(is_approved=True).order_by(Post.id.desc()).all()
     return render_template('index.html', posts=posts)
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -104,15 +113,23 @@ def search():  # 搜索商品
     form = SearchForm()
     query = request.args.get('query', '')
     results = []
-    
+
     if query:
-        # 搜索标题或描述中包含关键词的商品(只显示已审核通过的)
-        search_pattern = f'%{query}%'
-        results = Post.query.filter(
-            (Post.title.like(search_pattern)) | 
-            (Post.body.like(search_pattern))
-        ).filter_by(is_approved=True).order_by(Post.id.desc()).all()
-    
+        if current_user.is_authenticated and current_user.is_admin:
+            # 管理员可以搜索所有商品
+            search_pattern = f'%{query}%'
+            results = Post.query.filter(
+                (Post.title.like(search_pattern)) |
+                (Post.body.like(search_pattern))
+            ).order_by(Post.id.desc()).all()
+        else:
+            # 普通用户只能搜索已审核的商品
+            search_pattern = f'%{query}%'
+            results = Post.query.filter(
+                (Post.title.like(search_pattern)) |
+                (Post.body.like(search_pattern))
+            ).filter_by(is_approved=True).order_by(Post.id.desc()).all()
+
     return render_template('search.html', form=form, results=results, query=query)
 
 @app.route('/post/<int:post_id>')
@@ -228,16 +245,20 @@ def register():  # 处理用户注册
     return render_template('register.html', form=form)
 
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():  # 处理用户登录
     form = LoginForm()
     if form.validate_on_submit():
+        # 先尝试通过用户名查找
         user = User.query.filter_by(username=form.username.data).first()
+        # 如果没找到，尝试通过邮箱查找
+        if not user:
+            user = User.query.filter_by(email=form.username.data).first()
+
         if user and user.verify_password(form.password.data):
             login_user(user)
             return redirect(url_for('index'))
-        flash('用户名或密码错误')
+        flash('用户名/邮箱或密码错误')
     return render_template('login.html', form=form)
 
 @app.route('/logout', methods=['GET', 'POST'])

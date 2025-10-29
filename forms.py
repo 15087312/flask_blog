@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField, HiddenField, FloatField, SelectField
+from wtforms import StringField, PasswordField, TextAreaField, HiddenField, FloatField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, Regexp
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -35,10 +35,12 @@ class RequestResetForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     captcha = StringField('Captcha', validators=[DataRequired()])
     captcha_hidden = HiddenField()
+    submit = SubmitField('发送重置邮件')
 
 class ResetPasswordForm(FlaskForm):
     password = PasswordField('New Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired()])
+    submit = SubmitField('重置密码')
 
 class SearchForm(FlaskForm):
     query = StringField('搜索', validators=[DataRequired()])
